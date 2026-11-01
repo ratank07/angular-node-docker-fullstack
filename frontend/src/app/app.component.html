@@ -1,0 +1,24 @@
+<main class="container"> 
+<h1>Developer Management</h1>
+<p class="subtitle">Angular + Node.js + PostgreSQL + Docker</p>
+  <section class="panel">
+    <h2>Add Developer</h2>
+    
+    <form (submit)="addDeveloper($event, nameField, roleField)">
+      <input #nameField type="text" maxlength="100" placeholder="Name">
+      <input #roleField type="text" maxlength="100" placeholder="Role">
+      <button type="submit">Add Developer</button>
+    </form>
+  </section>
+  
+  <h2>Developers ({{developers().length}})</h2>
+<p *ngIf="!loading() && developers().length">No developers yet. add the first one!</p>
+
+<ul>
+  <li *ngFor="let developer of developers()">
+    <strong>{{developer.name}}</strong> - <span>{{developer.role}}</span>
+  </li>
+</ul>
+
+<button type="button" (click)="loadDevelopers()">Refresh Developers</button>
+</main>
