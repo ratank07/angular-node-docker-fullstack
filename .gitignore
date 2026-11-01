@@ -1,0 +1,37 @@
+.env
+.env.*
+!.env.example
+
+# Node.js dependencies
+node_modules/
+
+# Angular build output
+dist/
+.angular/
+
+# React build output
+react-frontend/dist/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+db_password.txt
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp

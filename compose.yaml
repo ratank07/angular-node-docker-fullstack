@@ -1,0 +1,74 @@
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    mem_limit: 678m
+    cpus: "1.0"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - backend
+
+  api:
+    build:
+      context: ./api
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: "1.0"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+      
+    networks:
+      - backend
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: "0.50"
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  frontend:
+  backend:
