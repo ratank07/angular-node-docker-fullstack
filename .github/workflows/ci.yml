@@ -1,0 +1,55 @@
+
+name: Angular + Node.js CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and verify application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # --------------------
+      # API
+      # --------------------
+      - name: Install API dependencies
+        working-directory: api
+        run: npm ci
+
+      - name: Run API tests
+        working-directory: api
+        run: npm test --if-present
+
+      # --------------------
+      # Angular frontend
+      # --------------------
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Angular
+        working-directory: frontend
+        run: npm run build
+
+      # --------------------
+      # Docker image builds
+      # --------------------
+      - name: Build API Docker image
+        run: docker build -t angular-node-api:ci ./api
+
+      - name: Build frontend Docker image
+        run: docker build -t angular-node-frontend:ci ./frontend
